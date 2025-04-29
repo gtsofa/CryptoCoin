@@ -1,4 +1,8 @@
-# Project Description:
+# CryptoCoin App
+[![CI](https://github.com/gtsofa/CryptoCoin/actions/workflows/CI.yml/badge.svg)](https://github.com/gtsofa/CryptoCoin/actions/workflows/CI.yml)
+
+
+## Project Description:
 Create an iOS application that fetches data from the CointRanking API and displays a list of the top 100
 cryptocurrency coins paginated, showing 20 characters per page.
 
