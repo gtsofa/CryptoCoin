@@ -7,11 +7,11 @@
 
 import Foundation
 
-enum Result {
+enum LoadCoinResult {
     case success([CoinItem])
     case failure(Error)
 }
 
 protocol CoinLoader {
-    func load(completion: @escaping (Result) -> Void)
+    func load(completion: @escaping (LoadCoinResult) -> Void)
 }
