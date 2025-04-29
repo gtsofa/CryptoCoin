@@ -28,4 +28,9 @@ cryptocurrency coins paginated, showing 20 characters per page.
 - The user should be able to view the details of each of the favorite coins.
 - The user should be able to swipe left to unfavorite a coin from the list.
 
+Architecture diagram
+
+![architecture](./architecture.png)
+
+
 
