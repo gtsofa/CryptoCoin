@@ -10,14 +10,20 @@ import XCTest
 class HTTPClient {
     static var shared = HTTPClient()
     
-    private init() {}
-    
+    func get(from url: URL) {}
+}
+
+class HTTPClientSpy: HTTPClient {
     var requestedURL: URL?
+    
+    override func get(from url: URL) {
+        requestedURL = url
+    }
 }
 
 class RemoteCoinLoader {
     func load() {
-        HTTPClient.shared.requestedURL = URL(string: "https://a-url.com")!
+        HTTPClient.shared.get(from: URL(string: "https://a-url.com")!)
     }
 }
 
@@ -25,7 +31,9 @@ class RemoteCoinLoader {
 final class RemoteCoinLoaderTests: XCTestCase {
     
     func test_init_doesNotRequestDataFromURL() {
-        let client = HTTPClient.shared
+        let client = HTTPClientSpy()
+        HTTPClient.shared = client
+        
         _ = RemoteCoinLoader()
         
         XCTAssertNil(client.requestedURL)
@@ -33,7 +41,9 @@ final class RemoteCoinLoaderTests: XCTestCase {
     }
     
     func test_load_requestsDataFromURL() {
-        let client = HTTPClient.shared
+        let client = HTTPClientSpy()
+        HTTPClient.shared = client
+        
         let sut = RemoteCoinLoader()
         
         sut.load()
