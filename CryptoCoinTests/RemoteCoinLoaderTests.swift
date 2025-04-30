@@ -44,12 +44,10 @@ final class RemoteCoinLoaderTests: XCTestCase {
         
         client.error = NSError(domain: "test", code: 0)
         
-        var capturedError: RemoteCoinLoader.Error?
-        sut.load { error in
-            capturedError = error
-        }
+        var capturedErrors = [RemoteCoinLoader.Error]()
+        sut.load { capturedErrors.append($0)}
         
-        XCTAssertEqual(capturedError, .connectivity)
+        XCTAssertEqual(capturedErrors, [.connectivity])
         
     }
     
