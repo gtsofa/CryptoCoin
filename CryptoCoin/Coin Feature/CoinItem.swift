@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct CoinItem {
+public struct CoinItem: Equatable {
     let uuid: UUID
     let symbol: String
     let name: String

@@ -72,6 +72,14 @@ final class RemoteCoinLoaderTests: XCTestCase {
         }
     }
     
+//    func test_load_deliversNoItemsOn200HTTPResponseWithEmptyJSON() {
+//        let (sut, client) = makeSUT()
+//        
+//        expect(sut, toCompleteWith: [], when: {
+//            client.complete(withStatusCode: 200, data: Data())
+//        })
+//    }
+    
     // MARK: Helpers
     
     private func makeSUT(url: URL = URL(string: "https://a-url.com")!) -> (sut: RemoteCoinLoader, client: HTTPClientSpy) {
@@ -82,12 +90,12 @@ final class RemoteCoinLoaderTests: XCTestCase {
     }
     
     private func expect(_ sut: RemoteCoinLoader, toCompleteWithError error: RemoteCoinLoader.Error, when action: () -> Void ) {
-        var capturedErrors = [RemoteCoinLoader.Error]()
-        sut.load { capturedErrors.append($0)}
+        var capturedResults = [RemoteCoinLoader.Result]()
+        sut.load { capturedResults.append($0)}
         
         action()
         
-        XCTAssertEqual(capturedErrors, [error])
+        XCTAssertEqual(capturedResults, [.failure(error)])
     }
     
     private class HTTPClientSpy: HTTPClient {

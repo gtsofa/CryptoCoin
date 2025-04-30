@@ -30,13 +30,18 @@ public class RemoteCoinLoader {
         case invalidData
     }
     
-    public func load(completion: @escaping (Error) -> Void = { _ in }) {
+    public enum Result: Equatable {
+        case success([CoinItem])
+        case failure(Error)
+    }
+    
+    public func load(completion: @escaping (Result) -> Void = { _ in }) {
         client.get(from: url) { result in
             switch result {
             case .success:
-                completion(.invalidData)
+                completion(.failure(.invalidData))
             case .failure:
-                completion(.connectivity)
+                completion(.failure(.connectivity))
                 
             }
             
