@@ -1,0 +1,37 @@
+{
+  "configurations" : [
+    {
+      "id" : "8648A27F-443D-4A86-B385-2A1233448C80",
+      "name" : "Test Scheme Action",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:CryptoCoin.xcodeproj",
+      "identifier" : "C625A8512DC16BED005A38DD",
+      "name" : "CryptoCoin"
+    }
+  },
+  "testTargets" : [
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:CryptoCoin.xcodeproj",
+        "identifier" : "C625A8672DC16BEF005A38DD",
+        "name" : "CryptoCoinTests"
+      }
+    },
+    {
+      "parallelizable" : true,
+      "target" : {
+        "containerPath" : "container:CryptoCoin.xcodeproj",
+        "identifier" : "C625A8712DC16BEF005A38DD",
+        "name" : "CryptoCoinUITests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -19,6 +19,8 @@
 /* Begin PBXFileReference section */
 		C625A8522DC16BED005A38DD /* CryptoCoin.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = CryptoCoin.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		C625A8682DC16BEF005A38DD /* CryptoCoinTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = CryptoCoinTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		C643010E2DC263AC0072909B /* CryptoCoin.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CryptoCoin.xctestplan; sourceTree = "<group>"; };
+		C68834302DC263DF005F2851 /* CryptoCoin.xctestplan */ = {isa = PBXFileReference; lastKnownFileType = text; path = CryptoCoin.xctestplan; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -68,6 +70,8 @@
 		C625A8492DC16BED005A38DD = {
 			isa = PBXGroup;
 			children = (
+				C68834302DC263DF005F2851 /* CryptoCoin.xctestplan */,
+				C643010E2DC263AC0072909B /* CryptoCoin.xctestplan */,
 				C625A8542DC16BED005A38DD /* CryptoCoin */,
 				C625A86B2DC16BEF005A38DD /* CryptoCoinTests */,
 				C625A8532DC16BED005A38DD /* Products */,
