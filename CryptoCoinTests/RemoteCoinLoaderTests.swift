@@ -55,14 +55,19 @@ final class RemoteCoinLoaderTests: XCTestCase {
     func test_load_deliversErrorOnNon200HTTPResponse() {
         let (sut, client) = makeSUT()
         
-        var capturedErrors = [RemoteCoinLoader.Error]()
-        sut.load { capturedErrors.append($0)}
+        
         
       
-        client.complete(withStatusCode: 400)
+        let samples = [199, 201, 300, 400, 500]
         
-        XCTAssertEqual(capturedErrors, [.invalidData])
-        
+        samples.enumerated().forEach { index, code in
+            var capturedErrors = [RemoteCoinLoader.Error]()
+            sut.load { capturedErrors.append($0)}
+            
+            client.complete(withStatusCode: code, at: index)
+            XCTAssertEqual(capturedErrors, [.invalidData])
+            
+        }
     }
     
     // MARK: Helpers
