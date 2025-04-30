@@ -37,24 +37,30 @@ class RemoteCoinLoader {
 final class RemoteCoinLoaderTests: XCTestCase {
     
     func test_init_doesNotRequestDataFromURL() {
-        let client = HTTPClientSpy()
-        let url = URL(string: "https://-another-url.com")!
-
-        _ = RemoteCoinLoader(url: url, client: client)
+        
+        let (_, client) = makeSUT()
         
         XCTAssertNil(client.requestedURL)
         
     }
     
     func test_load_requestsDataFromURL() {
-        let client = HTTPClientSpy()
         let url = URL(string: "https://a-given-url.com")!
         
-        let sut = RemoteCoinLoader(url: url, client: client)
+        let (sut, client) = makeSUT(url: url)
         
         sut.load()
         
         XCTAssertNotNil(client.requestedURL)
+    }
+    
+    // MARK: Helpers
+    
+    private func makeSUT(url: URL = URL(string: "https://a-url.com")!) -> (sut: RemoteCoinLoader, client: HTTPClientSpy) {
+        let client = HTTPClientSpy()
+        let sut = RemoteCoinLoader(url: url, client: client)
+        return (sut, client)
+        
     }
 
 }
