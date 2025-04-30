@@ -8,15 +8,6 @@
 import XCTest
 import CryptoCoin
 
-class HTTPClientSpy: HTTPClient {
-    var requestedURL: URL?
-    
-    func get(from url: URL) {
-        requestedURL = url
-    }
-}
-
-
 final class RemoteCoinLoaderTests: XCTestCase {
     
     func test_init_doesNotRequestDataFromURL() {
@@ -44,6 +35,14 @@ final class RemoteCoinLoaderTests: XCTestCase {
         let sut = RemoteCoinLoader(url: url, client: client)
         return (sut, client)
         
+    }
+    
+    private class HTTPClientSpy: HTTPClient {
+        var requestedURL: URL?
+        
+        func get(from url: URL) {
+            requestedURL = url
+        }
     }
 
 }
