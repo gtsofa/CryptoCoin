@@ -44,7 +44,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         
         let clientError = NSError(domain: "test", code: 0)
         
-        expect(sut, toCompleteWithError: .connectivity, when: {
+        expect(sut, toCompleteWith: .failure(.connectivity), when: {
             client.complete(with: clientError)
         })
         
@@ -56,7 +56,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         let samples = [199, 201, 300, 400, 500]
         
         samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWithError: .invalidData, when: {
+            expect(sut, toCompleteWith: .failure(.invalidData), when: {
                 client.complete(withStatusCode: code, at: index)
             })
             
@@ -65,7 +65,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         func test_load_deliversErrorOn200HTTPResponseWithInvalidJSON() {
             let (sut, client) = makeSUT()
             
-            expect(sut, toCompleteWithError: .invalidData, when: {
+            expect(sut, toCompleteWith: .failure(.invalidData), when: {
                 let invalidJSON = Data("Invalid JSON".utf8)
                 client.complete(withStatusCode: 200, data: invalidJSON)
             })
@@ -94,13 +94,13 @@ final class RemoteCoinLoaderTests: XCTestCase {
         
     }
     
-    private func expect(_ sut: RemoteCoinLoader, toCompleteWithError error: RemoteCoinLoader.Error, when action: () -> Void ) {
+    private func expect(_ sut: RemoteCoinLoader, toCompleteWith result: RemoteCoinLoader.Result, when action: () -> Void ) {
         var capturedResults = [RemoteCoinLoader.Result]()
         sut.load { capturedResults.append($0)}
         
         action()
         
-        XCTAssertEqual(capturedResults, [.failure(error)])
+        XCTAssertEqual(capturedResults, [result])
     }
     
     private class HTTPClientSpy: HTTPClient {
