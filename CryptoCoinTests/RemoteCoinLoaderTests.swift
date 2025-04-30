@@ -72,13 +72,18 @@ final class RemoteCoinLoaderTests: XCTestCase {
         }
     }
     
-//    func test_load_deliversNoItemsOn200HTTPResponseWithEmptyJSON() {
-//        let (sut, client) = makeSUT()
-//        
-//        expect(sut, toCompleteWith: [], when: {
-//            client.complete(withStatusCode: 200, data: Data())
-//        })
-//    }
+    func test_load_deliversNoItemsOn200HTTPResponseWithEmptyJSON() {
+        let (sut, client) = makeSUT()
+        
+        var capturedResults = [RemoteCoinLoader.Result]()
+        sut.load { capturedResults.append($0)}
+        
+        
+        let emptyListJSON = Data("{\"coins\": []}".utf8)
+        client.complete(withStatusCode: 200, data: emptyListJSON)
+        
+        XCTAssertEqual(capturedResults, [.success([])])
+    }
     
     // MARK: Helpers
     
