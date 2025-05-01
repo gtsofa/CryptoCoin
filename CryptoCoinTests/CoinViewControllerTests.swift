@@ -6,12 +6,13 @@
 //
 
 import XCTest
+import CryptoCoin
 
 final class CoinViewController: UIViewController {
     
-    private var loader: CoinViewControllerTests.LoaderSpy?
+    private var loader: CoinLoader?
     
-    convenience init(loader: CoinViewControllerTests.LoaderSpy) {
+    convenience init(loader: CoinLoader) {
         self.init()
         self.loader = loader
     }
@@ -19,7 +20,7 @@ final class CoinViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loader?.load()
+        loader?.load { _ in }
     }
 }
 
@@ -43,10 +44,10 @@ final class CoinViewControllerTests: XCTestCase {
     
     // MARK: Helpers
     
-    class LoaderSpy {
+    class LoaderSpy: CoinLoader {
         var loadCallCount = 0
         
-        func load() {
+        func load(completion: @escaping (CoinLoader.Result) -> Void) {
             loadCallCount += 1
         }
     }
