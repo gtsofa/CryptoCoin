@@ -88,18 +88,14 @@ final class RemoteCoinLoaderTests: XCTestCase {
     func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
         let (sut, client) = makeSUT()
         
-        let item1 = CoinItem(id: UUID(), symbol: "BTC", name: "Bitcoin", iconURL: URL(string: "https://cdn.coin.com/icon")!, price: 94219.4326, dayPerformance: -1.20)
+        let item1 = makeItem(id: UUID(), symbol: "BTC", name: "Bitcoin", iconURL: URL(string: "https://cdn.coin.com/icon")!, price: 94219.4326, dayPerformance: -1.20)
         
-        let item2 = CoinItem(id: UUID(), symbol: "ETH", name: "Ethereum", iconURL: URL(string: "https://cdn.coin.com/icon")!, price: 2194.21, dayPerformance: +1.20)
-       
-        let item1JSON: [String: Any] = ["uuid": item1.id.uuidString, "symbol": item1.symbol, "name": item1.name, "iconUrl": item1.iconURL.absoluteString, "price": item1.price, "change": item1.dayPerformance]
+        let item2 = makeItem(id: UUID(), symbol: "ETH", name: "Ethereum", iconURL: URL(string: "https://cdn.coin.com/icon")!, price: 2194.21, dayPerformance: +1.20)
         
-        let item2JSON: [String: Any] = ["uuid": item2.id.uuidString, "symbol": item2.symbol, "name": item2.name, "iconUrl": item2.iconURL.absoluteString, "price": item2.price, "change": item2.dayPerformance]
+        let items = [item1.model, item2.model]
         
-        let itemsJSON = ["coins": [item1JSON, item2JSON]]
-        
-        expect(sut, toCompleteWith: .success([item1, item2]), when: {
-            let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
+        expect(sut, toCompleteWith: .success(items), when: {
+            let json = makeItemsJSON([item1.json, item2.json])
             client.complete(withStatusCode: 200, data: json)
         })
     }
@@ -111,6 +107,19 @@ final class RemoteCoinLoaderTests: XCTestCase {
         let sut = RemoteCoinLoader(url: url, client: client)
         return (sut, client)
         
+    }
+    
+    private func makeItemsJSON(_ coins: [[String: Any]]) -> Data {
+        let json = ["coins": coins]
+        return try! JSONSerialization.data(withJSONObject: json)
+    }
+    
+    private func makeItem(id: UUID, symbol: String, name: String, iconURL: URL, price: Double, dayPerformance: Double) -> (model: CoinItem, json: [String: Any]) {
+        let json: [String: Any] = ["uuid": id.uuidString, "symbol": symbol, "name": name, "iconUrl": iconURL.absoluteString, "price": price, "change": dayPerformance]
+        
+        let item = CoinItem(id: id, symbol: symbol, name: name, iconURL: iconURL, price: price, dayPerformance: dayPerformance)
+        
+        return (item, json)
     }
     
     private func expect(_ sut: RemoteCoinLoader, toCompleteWith result: RemoteCoinLoader.Result, when action: () -> Void ) {
