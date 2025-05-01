@@ -24,14 +24,3 @@ public struct CoinItem: Equatable {
         self.dayPerformance = dayPerformance
     }
 }
-
-extension CoinItem: Decodable {
-    private enum CodingKeys: String, CodingKey {
-        case id = "uuid"
-        case symbol
-        case name
-        case iconURL = "iconUrl"
-        case price
-        case dayPerformance = "change"
-    }
-}
