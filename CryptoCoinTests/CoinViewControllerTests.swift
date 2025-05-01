@@ -26,23 +26,31 @@ final class CoinViewController: UIViewController {
 
 final class CoinViewControllerTests: XCTestCase {
     func test_init_doesNotLoadCoin() {
-        let loader = LoaderSpy()
-        
-        _ = CoinViewController(loader: loader)
+        let (_, loader) = makeSUT()
         
         XCTAssertEqual(loader.loadCallCount, 0)
+        
+        
     }
     
     func test_viewDidLoad_loadsCoin() {
-        let loader = LoaderSpy()
-        let sut = CoinViewController(loader: loader)
+        
+        let (sut, loader) = makeSUT()
         
         sut.loadViewIfNeeded()
         
         XCTAssertEqual(loader.loadCallCount, 1)
+        
     }
     
     // MARK: Helpers
+    
+    private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: CoinViewController, loader: LoaderSpy) {
+        let client = LoaderSpy()
+        let sut = CoinViewController(loader: client)
+        
+        return (sut, client)
+    }
     
     class LoaderSpy: CoinLoader {
         var loadCallCount = 0
