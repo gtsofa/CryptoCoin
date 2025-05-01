@@ -39,9 +39,10 @@ public class RemoteCoinLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                if response.statusCode == 200, let root = try? JSONDecoder().decode(Root.self, from: data) {
-                    completion(.success(root.coins.map { $0.coin}))
-                } else {
+                do {
+                    let coins = try FeedItemsMapper.map(data, response)
+                    completion(.success(coins))
+                } catch {
                     completion(.failure(.invalidData))
                 }
                 
@@ -52,7 +53,9 @@ public class RemoteCoinLoader {
             
         }
     }
-    
+}
+
+private class FeedItemsMapper {
     private struct Root: Decodable {
         let coins: [Item]
     }
@@ -68,5 +71,15 @@ public class RemoteCoinLoader {
         var coin: CoinItem {
             return CoinItem(id: uuid, symbol: symbol, name: name, iconURL: iconUrl, price: price, dayPerformance: change)
         }
+    }
+    
+    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [CoinItem] {
+        guard response.statusCode == 200 else {
+            throw RemoteCoinLoader.Error.invalidData
+        }
+        
+        let root = try JSONDecoder().decode(Root.self, from: data)
+        
+        return root.coins.map { $0.coin }
     }
 }
