@@ -34,7 +34,7 @@ cryptocurrency coins paginated, showing 20 characters per page.
 
 Architecture diagram
 
-![architecture1](./architecture1.png)
+![architecture2](./architecture2.png)
 
 
 
