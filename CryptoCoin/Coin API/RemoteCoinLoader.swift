@@ -7,7 +7,7 @@
 
 import Foundation
 
-public class RemoteCoinLoader {
+public class RemoteCoinLoader: CoinLoader {
     private let client: HTTPClient
     private let url: URL
     
