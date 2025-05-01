@@ -45,34 +45,3 @@ public class RemoteCoinLoader {
         }
     }
 }
-
-private class CoinItemsMapper {
-    private struct Root: Decodable {
-        let coins: [Item]
-    }
-    
-    private struct Item: Decodable {
-        let uuid: UUID
-        let symbol: String
-        let name: String
-        let iconUrl: URL
-        let price: Double
-        let change: Double
-        
-        var coin: CoinItem {
-            return CoinItem(id: uuid, symbol: symbol, name: name, iconURL: iconUrl, price: price, dayPerformance: change)
-        }
-    }
-    
-    static var OK_200: Int { return 200 }
-    
-    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [CoinItem] {
-        guard response.statusCode == OK_200 else {
-            throw RemoteCoinLoader.Error.invalidData
-        }
-        
-        let root = try JSONDecoder().decode(Root.self, from: data)
-        
-        return root.coins.map { $0.coin }
-    }
-}
