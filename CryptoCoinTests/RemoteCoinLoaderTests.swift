@@ -85,6 +85,30 @@ final class RemoteCoinLoaderTests: XCTestCase {
         XCTAssertEqual(capturedResults, [.success([])])
     }
     
+    func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
+        let (sut, client) = makeSUT()
+        
+        // CoinItem... CoinItem(uuid: UUID(), symbol: " a symbol", name: "a name", iconURL: URL(string: "https://a-url.com)!, price: "a price", dayPerformance: " 24 hour performance"
+        let item1 = CoinItem(id: UUID(), symbol: "BTC", name: "Bitcoin", iconURL: URL(string: "https://cdn.coin.com/icon")!, price: 94219.4326, dayPerformance: -1.20)
+        
+        let item2 = CoinItem(id: UUID(), symbol: "ETH", name: "Ethereum", iconURL: URL(string: "https://cdn.coin.com/icon")!, price: 2194.21, dayPerformance: +1.20)
+        
+        // icon, name, currentprice, 24hrperofrmance
+        // {"uuid": "Qwsogvtv82FCd", "symbol": "BTC", "name": "Bitcoin", "iconURL": "https://cdn.coin", "price": "94219.4326", "change": "-1.20"}
+        let item1JSON: [String: Any] = ["uuid": item1.id.uuidString, "symbol": item1.symbol, "name": item1.name, "iconUrl": item1.iconURL.absoluteString, "price": item1.price, "change": item1.dayPerformance]
+        
+        // item2JSON
+        let item2JSON: [String: Any] = ["uuid": item2.id.uuidString, "symbol": item2.symbol, "name": item2.name, "iconUrl": item2.iconURL.absoluteString, "price": item2.price, "change": item2.dayPerformance]
+        
+        // coins: [{}, {}]
+        let itemsJSON = ["coins": [item1JSON, item2JSON]]
+        
+        expect(sut, toCompleteWith: .success([item1, item2]), when: {
+            let json = try! JSONSerialization.data(withJSONObject: itemsJSON)
+            client.complete(withStatusCode: 200, data: json)
+        })
+    }
+    
     // MARK: Helpers
     
     private func makeSUT(url: URL = URL(string: "https://a-url.com")!) -> (sut: RemoteCoinLoader, client: HTTPClientSpy) {

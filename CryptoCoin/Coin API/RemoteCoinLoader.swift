@@ -39,8 +39,8 @@ public class RemoteCoinLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, _):
-                if let _ = try? JSONSerialization.jsonObject(with: data) {
-                    completion(.success([]))
+                if let root = try? JSONDecoder().decode(Root.self, from: data) {
+                    completion(.success(root.coins))
                 } else {
                     completion(.failure(.invalidData))
                 }
@@ -51,5 +51,9 @@ public class RemoteCoinLoader {
             }
             
         }
+    }
+    
+    private struct Root: Decodable {
+        let coins: [CoinItem]
     }
 }
