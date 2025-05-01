@@ -31,7 +31,7 @@ public class RemoteCoinLoader {
             switch result {
             case let .success(data, response):
                 do {
-                    let coins = try FeedItemsMapper.map(data, response)
+                    let coins = try CoinItemsMapper.map(data, response)
                     completion(.success(coins))
                 } catch {
                     completion(.failure(.invalidData))
@@ -46,7 +46,7 @@ public class RemoteCoinLoader {
     }
 }
 
-private class FeedItemsMapper {
+private class CoinItemsMapper {
     private struct Root: Decodable {
         let coins: [Item]
     }
