@@ -7,11 +7,8 @@
 
 import Foundation
 
-enum LoadCoinResult {
-    case success([CoinItem])
-    case failure(Error)
-}
-
-protocol CoinLoader {
-    func load(completion: @escaping (LoadCoinResult) -> Void)
+public protocol CoinLoader {
+    typealias Result = Swift.Result<[CoinItem], Error>
+    
+    func load(completion: @escaping (Result) -> Void)
 }

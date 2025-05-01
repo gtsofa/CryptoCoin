@@ -44,7 +44,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         
         let clientError = NSError(domain: "test", code: 0)
         
-        expect(sut, toCompleteWith: .failure(.connectivity), when: {
+        expect(sut, toCompleteWith: .failure(RemoteCoinLoader.Error.connectivity), when: {
             client.complete(with: clientError)
         })
         
@@ -56,7 +56,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         let samples = [199, 201, 300, 400, 500]
         
         samples.enumerated().forEach { index, code in
-            expect(sut, toCompleteWith: .failure(.invalidData), when: {
+            expect(sut, toCompleteWith: .failure(RemoteCoinLoader.Error.invalidData), when: {
                 let json = makeItemsJSON([])
                 client.complete(withStatusCode: code, data: json, at: index)
             })
@@ -66,7 +66,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         func test_load_deliversErrorOn200HTTPResponseWithInvalidJSON() {
             let (sut, client) = makeSUT()
             
-            expect(sut, toCompleteWith: .failure(.invalidData), when: {
+            expect(sut, toCompleteWith: .failure(RemoteCoinLoader.Error.invalidData), when: {
                 let invalidJSON = Data("Invalid JSON".utf8)
                 client.complete(withStatusCode: 200, data: invalidJSON)
             })
@@ -76,14 +76,10 @@ final class RemoteCoinLoaderTests: XCTestCase {
     func test_load_deliversNoItemsOn200HTTPResponseWithEmptyJSON() {
         let (sut, client) = makeSUT()
         
-        var capturedResults = [RemoteCoinLoader.Result]()
-        sut.load { capturedResults.append($0)}
-        
-        
-        let emptyListJSON = makeItemsJSON([])
-        client.complete(withStatusCode: 200, data: emptyListJSON)
-        
-        XCTAssertEqual(capturedResults, [.success([])])
+        expect(sut, toCompleteWith: .success([]), when: {
+            let emptyListJSON = makeItemsJSON([])
+            client.complete(withStatusCode: 200, data: emptyListJSON)
+        })
     }
     
     func test_load_deliversItemsOn200HTTPResponseWithJSONItems() {
@@ -106,7 +102,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         let url = URL(string: "https://a-url.com")!
         var sut: RemoteCoinLoader? = RemoteCoinLoader(url: url, client: client)
         
-        var capturedResults = [RemoteCoinLoader.Result]()
+        var capturedResults = [CoinLoader.Result]()
         sut?.load { capturedResults.append($0) }
         
         sut = nil
@@ -146,14 +142,53 @@ final class RemoteCoinLoaderTests: XCTestCase {
         return (item, json)
     }
     
-    private func expect(_ sut: RemoteCoinLoader, toCompleteWith result: RemoteCoinLoader.Result, when action: () -> Void ) {
-        var capturedResults = [RemoteCoinLoader.Result]()
-        sut.load { capturedResults.append($0)}
+    private func expect(_ sut: RemoteCoinLoader, toCompleteWith expectedResult: Result<[CoinItem], RemoteCoinLoader.Error>, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line ) {
+        let exp = expectation(description: "Wait for load completion")
+        
+        sut.load { receivedResult in
+            switch (receivedResult, expectedResult) {
+            case let (.success(receivedItems), .success(expectedItems)):
+                XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
+                
+            case let (.failure(receivedError as RemoteCoinLoader.Error), .failure(expectedError)):
+                XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+                
+            default:
+                XCTFail("Expected result \(expectedResult) got \(receivedResult) instead", file: file, line: line)
+            }
+            exp.fulfill()
+            
+        }
         
         action()
         
-        XCTAssertEqual(capturedResults, [result])
+        wait(for: [exp], timeout: 0.1)
     }
+    
+    /*
+     func expect(_ sut: RemoteFeedLoader, toCompleteWith expectedResult: Result<[FeedImage], RemoteFeedLoader.Error>, when action: () -> Void, file: StaticString = #filePath, line: UInt = #line) {
+         let exp = expectation(description: "Wait for load completion")
+
+         sut.load { receivedResult in
+             switch (receivedResult, expectedResult) {
+             case let (.success(receivedItems), .success(expectedItems)):
+                 XCTAssertEqual(receivedItems, expectedItems, file: file, line: line)
+
+             case let (.failure(receivedError as RemoteFeedLoader.Error), .failure(expectedError)):
+                 XCTAssertEqual(receivedError, expectedError, file: file, line: line)
+
+             default:
+                 XCTFail("Expected result \(expectedResult) got \(receivedResult) instead", file: file, line: line)
+             }
+
+             exp.fulfill()
+         }
+
+         action()
+
+         waitForExpectations(timeout: 0.1)
+     }
+     */
     
     private class HTTPClientSpy: HTTPClient {
 

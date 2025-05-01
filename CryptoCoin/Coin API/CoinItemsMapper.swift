@@ -31,10 +31,10 @@ final class CoinItemsMapper {
     
     private static var OK_200: Int { return 200 }
     
-    static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteCoinLoader.Result {
+    static func map(_ data: Data, from response: HTTPURLResponse) -> CoinLoader.Result {
         guard response.statusCode == OK_200,
             let root = try? JSONDecoder().decode(Root.self, from: data) else {
-            return .failure(.invalidData)
+            return .failure(RemoteCoinLoader.Error.invalidData)
         }
         
         return .success(root.coin)

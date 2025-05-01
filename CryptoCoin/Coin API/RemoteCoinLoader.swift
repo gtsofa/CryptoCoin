@@ -21,12 +21,7 @@ public class RemoteCoinLoader {
         case invalidData
     }
     
-    public enum Result: Equatable {
-        case success([CoinItem])
-        case failure(Error)
-    }
-    
-    public func load(completion: @escaping (Result) -> Void = { _ in }) {
+    public func load(completion: @escaping (CoinLoader.Result) -> Void = { _ in }) {
         client.get(from: url) { [weak self] result in
             guard self != nil else { return }
             
@@ -35,7 +30,7 @@ public class RemoteCoinLoader {
                 completion(CoinItemsMapper.map(data, from: response))
                 
             case .failure:
-                completion(.failure(.connectivity))
+                completion(.failure(Error.connectivity))
                 
             }
             
