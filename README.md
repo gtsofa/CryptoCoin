@@ -32,6 +32,68 @@ cryptocurrency coins paginated, showing 20 characters per page.
 - The user should be able to view the details of each of the favorite coins.
 - The user should be able to swipe left to unfavorite a coin from the list.
 
+## Model Specs
+---
+
+Feed Image
+
+| Property | Type |
+|----------|------|
+|uuid      | UUID     |
+|symbol    | String     |
+|name      | String     |
+|iconUrl   | URL     |
+|price     | Double  |
+|change    | Double  |
+
+### Payload
+
+```
+GET /coin
+
+200 RESPONSE
+
+{
+	"coins": [
+		{
+			"uuid": "a UUID",
+			"symbol": " a symbol",
+			"name": "a name",
+			"iconUrl": "https://a-image.url"
+			"price": "94219.4326"
+			"change": "-1.20",
+		},
+		{
+			"uuid": "another UUID",
+			"symbol": "another symbol",
+			"name": "another name"
+			"iconUrl": "https://another-image.url",
+			"price": "8913.526",
+			"change": "2.44"
+		},
+		{
+			"uuid": "even another UUID",
+                        "symbol": even "another symbol",
+                        "name": "even another name"
+                        "iconUrl": "https://even another-image.url",
+                        "price": "8913.526",
+                        "change": "0.74"
+
+		},
+		{
+			"uuid": "yet another UUID",
+                        "symbol": "yet another symbol",
+                        "name": "yet another name"
+                        "iconUrl": "https://yet-another-image.url",
+                        "price": "1030.526",
+                        "change": "9.87"
+
+		}
+		...
+	]
+}
+```
+
 Architecture diagram
 
 ![architecture2](./architecture2.png)
