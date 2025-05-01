@@ -80,7 +80,7 @@ final class RemoteCoinLoaderTests: XCTestCase {
         sut.load { capturedResults.append($0)}
         
         
-        let emptyListJSON = Data("{\"coins\": []}".utf8)
+        let emptyListJSON = makeItemsJSON([])
         client.complete(withStatusCode: 200, data: emptyListJSON)
         
         XCTAssertEqual(capturedResults, [.success([])])
