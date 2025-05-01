@@ -10,6 +10,10 @@ import Foundation
 final class CoinItemsMapper {
     private struct Root: Decodable {
         let coins: [Item]
+        
+        var coin: [CoinItem] {
+            return coins.map { $0.coin }
+        }
     }
     
     private struct Item: Decodable {
@@ -27,13 +31,12 @@ final class CoinItemsMapper {
     
     private static var OK_200: Int { return 200 }
     
-    static func map(_ data: Data, _ response: HTTPURLResponse) throws -> [CoinItem] {
-        guard response.statusCode == OK_200 else {
-            throw RemoteCoinLoader.Error.invalidData
+    static func map(_ data: Data, from response: HTTPURLResponse) -> RemoteCoinLoader.Result {
+        guard response.statusCode == OK_200,
+            let root = try? JSONDecoder().decode(Root.self, from: data) else {
+            return .failure(.invalidData)
         }
         
-        let root = try JSONDecoder().decode(Root.self, from: data)
-        
-        return root.coins.map { $0.coin }
+        return .success(root.coin)
     }
 }

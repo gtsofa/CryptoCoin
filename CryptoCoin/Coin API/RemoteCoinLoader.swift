@@ -30,12 +30,7 @@ public class RemoteCoinLoader {
         client.get(from: url) { result in
             switch result {
             case let .success(data, response):
-                do {
-                    let coins = try CoinItemsMapper.map(data, response)
-                    completion(.success(coins))
-                } catch {
-                    completion(.failure(.invalidData))
-                }
+                completion(CoinItemsMapper.map(data, from: response))
                 
             case .failure:
                 completion(.failure(.connectivity))
