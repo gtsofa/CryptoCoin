@@ -25,8 +25,6 @@ final class CoinViewController: UITableViewController {
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
         
-        //load()
-        
         onViewIsAppearing = { vc in
             vc.onViewIsAppearing = nil
             vc.load()
@@ -37,11 +35,6 @@ final class CoinViewController: UITableViewController {
         super.viewIsAppearing(animated)
         
         onViewIsAppearing?(self)
-        
-//        if !isViewAppeared {
-//            refreshControl?.beginRefreshing()
-//            isViewAppeared = true
-//        }
     }
     
     @objc private func load() {
@@ -82,8 +75,6 @@ final class CoinViewControllerTests: XCTestCase {
         loader.completeCoinLoading(at: 1)
         XCTAssertEqual(sut.isShowingLoadingIndicator, false)
     }
-    
-    
     
     // MARK: Helpers
     
