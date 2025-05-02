@@ -44,32 +44,18 @@ final class CoinViewController: UITableViewController {
 }
 
 final class CoinViewControllerTests: XCTestCase {
-    func test_init_doesNotLoadCoin() {
-        let (_, loader) = makeSUT()
+    func test_loadCoinActions_requestCoinFromLoader() {
+        let (sut, loader) = makeSUT()
         
         XCTAssertEqual(loader.loadCallCount, 0)
-    }
-    
-    func test_viewDidLoad_loadsCoin() {
-        
-        let (sut, loader) = makeSUT()
         
         sut.loadViewIfNeeded()
-        
         XCTAssertEqual(loader.loadCallCount, 1)
         
-    }
-    
-    func test_userInitiatedFeedReload_loadsCoin() {
-        let (sut, loader) = makeSUT()
-        
-        sut.loadViewIfNeeded()
-        
-        sut.simulateUserInitiatedFeed()
-        
+        sut.simulateUserInitiatedCoinReload()
         XCTAssertEqual(loader.loadCallCount, 2)
         
-        sut.simulateUserInitiatedFeed()
+        sut.simulateUserInitiatedCoinReload()
         XCTAssertEqual(loader.loadCallCount, 3)
     }
     
@@ -159,7 +145,7 @@ private extension CoinViewController {
     var isShowingLoadingIndicator: Bool {
         return refreshControl?.isRefreshing == true
     }
-    func simulateUserInitiatedFeed() {
+    func simulateUserInitiatedCoinReload() {
         refreshControl?.simulatePullToRefresh()
     }
     
