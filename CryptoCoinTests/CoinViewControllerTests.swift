@@ -23,7 +23,6 @@ final class CoinViewController: UITableViewController {
         
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
-        refreshControl?.beginRefreshing()
         
         load()
     }
@@ -38,7 +37,9 @@ final class CoinViewController: UITableViewController {
     }
     
     @objc private func load() {
-        loader?.load { _ in }
+        loader?.load { [weak self] _ in
+            self?.refreshControl?.endRefreshing()
+        }
     }
 }
 
@@ -85,6 +86,15 @@ final class CoinViewControllerTests: XCTestCase {
         XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
     }
     
+    func test_viewDidLoad_hidesLoadingIndicatorOnLoaderCompletion() {
+        let (sut, loader) = makeSUT()
+        
+        sut.loadViewIfNeeded()
+        
+        loader.completeCoinLoading()
+        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+    }
+    
     // MARK: Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: CoinViewController, loader: LoaderSpy) {
@@ -96,10 +106,19 @@ final class CoinViewControllerTests: XCTestCase {
     }
     
     class LoaderSpy: CoinLoader {
-        var loadCallCount = 0
+        var loadCallCount: Int {
+            completions.count
+        }
+        
+        var completions = [(CoinLoader.Result) -> Void]()
         
         func load(completion: @escaping (CoinLoader.Result) -> Void) {
-            loadCallCount += 1
+            //loadCallCount += 1
+            completions.append(completion)
+        }
+        
+        func completeCoinLoading() {
+            completions[0](.success([]))
         }
     }
 
