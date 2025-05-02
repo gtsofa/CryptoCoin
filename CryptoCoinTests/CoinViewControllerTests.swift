@@ -29,8 +29,6 @@ final class CoinViewControllerTests: XCTestCase {
         let (_, loader) = makeSUT()
         
         XCTAssertEqual(loader.loadCallCount, 0)
-        
-        
     }
     
     func test_viewDidLoad_loadsCoin() {
