@@ -45,11 +45,12 @@ public final class CoinViewController: UITableViewController {
             case let .success(coin):
                 self?.tableModel = coin
                 self?.tableView.reloadData()
-                self?.refreshControl?.endRefreshing()
+                //self?.refreshControl?.endRefreshing()
                 
             case .failure:
                 break
             }
+            self?.refreshControl?.endRefreshing()
         }
     }
     

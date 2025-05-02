@@ -36,7 +36,8 @@ final class CoinViewControllerTests: XCTestCase {
         
         sut.simulateUserInitiatedCoinReload()
         XCTAssertEqual(sut.isShowingLoadingIndicator, true)
-        loader.completeCoinLoading(at: 1)
+        
+        loader.completeCoinLoadingWithError(at: 1)
         XCTAssertEqual(sut.isShowingLoadingIndicator, false)
     }
     
