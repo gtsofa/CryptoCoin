@@ -11,7 +11,8 @@ import CryptoCoin
 final class CoinViewController: UITableViewController {
     
     private var loader: CoinLoader?
-    private var viewAppeared = false
+    private var isViewAppeared = false
+    private var onViewIsAppearing: ((CoinViewController) -> Void)?
     
     convenience init(loader: CoinLoader) {
         self.init()
@@ -24,19 +25,27 @@ final class CoinViewController: UITableViewController {
         refreshControl = UIRefreshControl()
         refreshControl?.addTarget(self, action: #selector(load), for: .valueChanged)
         
-        load()
+        //load()
+        
+        onViewIsAppearing = { vc in
+            vc.onViewIsAppearing = nil
+            vc.load()
+        }
     }
     
     override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
         
-        if !viewAppeared {
-            refreshControl?.beginRefreshing()
-            viewAppeared = true
-        }
+        onViewIsAppearing?(self)
+        
+//        if !isViewAppeared {
+//            refreshControl?.beginRefreshing()
+//            isViewAppeared = true
+//        }
     }
     
     @objc private func load() {
+        refreshControl?.beginRefreshing()
         loader?.load { [weak self] _ in
             self?.refreshControl?.endRefreshing()
         }
@@ -49,7 +58,7 @@ final class CoinViewControllerTests: XCTestCase {
         
         XCTAssertEqual(loader.loadCallCount, 0)
         
-        sut.loadViewIfNeeded()
+        sut.simulateAppearance()
         XCTAssertEqual(loader.loadCallCount, 1)
         
         sut.simulateUserInitiatedCoinReload()
@@ -60,47 +69,21 @@ final class CoinViewControllerTests: XCTestCase {
     }
     
     func test_viewDidLoad_showsLoadingIndicator() {
-        let (sut, _) = makeSUT()
-        
-        sut.loadViewIfNeeded()
-        sut.replaceRefreshControlWithFakeForiOS17Support()
-        
-        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
-        
-        sut.beginAppearanceTransition(true, animated: false)
-        sut.endAppearanceTransition()
-        XCTAssertEqual(sut.isShowingLoadingIndicator, true)
-    }
-    
-    func test_viewDidLoad_hidesLoadingIndicatorOnLoaderCompletion() {
         let (sut, loader) = makeSUT()
         
-        sut.loadViewIfNeeded()
-        
-        loader.completeCoinLoading()
-        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
-    }
-    
-    func test_userInitiatedFeedReload_showsLoadingIndicator() {
-        let (sut, _) = makeSUT()
-        
-        sut.loadViewIfNeeded()
-        
         sut.simulateAppearance()
-        
         XCTAssertEqual(sut.isShowingLoadingIndicator, true)
-    }
-    
-    func test_userInitiatedFeedReload_hidesLoadingIndicatorOnLoaderCompletion() {
-        let (sut, loader) = makeSUT()
         
-        sut.loadViewIfNeeded()
+        loader.completeCoinLoading(at: 0)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
         
-        sut.simulateAppearance()
-        
-        loader.completeCoinLoading()
+        sut.simulateUserInitiatedCoinReload()
+        XCTAssertEqual(sut.isShowingLoadingIndicator, true)
+        loader.completeCoinLoading(at: 1)
         XCTAssertEqual(sut.isShowingLoadingIndicator, false)
     }
+    
+    
     
     // MARK: Helpers
     
@@ -120,12 +103,11 @@ final class CoinViewControllerTests: XCTestCase {
         var completions = [(CoinLoader.Result) -> Void]()
         
         func load(completion: @escaping (CoinLoader.Result) -> Void) {
-            //loadCallCount += 1
             completions.append(completion)
         }
         
-        func completeCoinLoading() {
-            completions[0](.success([]))
+        func completeCoinLoading(at index: Int) {
+            completions[index](.success([]))
         }
     }
 
@@ -134,7 +116,8 @@ final class CoinViewControllerTests: XCTestCase {
 private extension UIRefreshControl {
     func simulatePullToRefresh() {
         allTargets.forEach { target in
-            actions(forTarget: target, forControlEvent: .valueChanged)?.forEach {
+            actions(forTarget: target, forControlEvent:
+                    .valueChanged)?.forEach {
                 (target as NSObject).perform(Selector($0))
             }
         }
@@ -150,18 +133,28 @@ private extension CoinViewController {
     }
     
     func simulateAppearance() {
-        if !viewAppeared {
+        if !isViewAppeared {
             loadViewIfNeeded()
-            replaceRefreshControlWithFakeForiOS17Support()
+            prepareForFirstAppearance()
         }
         beginAppearanceTransition(true, animated: false)
         endAppearanceTransition()
     }
     
+    private func prepareForFirstAppearance() {
+        setSmallFrameToPreventRenderingCells()
+        replaceRefreshControlWithFakeForiOS17Support()
+    }
+    
+    private func setSmallFrameToPreventRenderingCells() {
+        tableView.frame = CGRect(x: 0, y: 0, width: 390, height: 1)
+    }
+    
     func replaceRefreshControlWithFakeForiOS17Support() {
         let fake = FakeRefreshControl()
         refreshControl?.allTargets.forEach { target in
-            refreshControl?.actions(forTarget: target, forControlEvent: .valueChanged)?.forEach { action in
+            refreshControl?.actions(forTarget: target, forControlEvent:
+                    .valueChanged)?.forEach { action in
                 fake.addTarget(target, action: Selector(action), for: .valueChanged)
             }
         }
