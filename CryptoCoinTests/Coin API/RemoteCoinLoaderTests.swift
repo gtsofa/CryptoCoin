@@ -123,12 +123,6 @@ final class RemoteCoinLoaderTests: XCTestCase {
         
     }
     
-    private func trackForMemoryLeaks(_ instance: AnyObject, file: StaticString = #file, line: UInt = #line) {
-        addTeardownBlock { [weak instance] in
-            XCTAssertNil(instance, "Instance should have been deallocated. Potential memory leak.", file: file, line: line)
-        }
-    }
-    
     private func makeItemsJSON(_ coins: [[String: Any]]) -> Data {
         let json = ["coins": coins]
         return try! JSONSerialization.data(withJSONObject: json)

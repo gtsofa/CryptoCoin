@@ -46,7 +46,8 @@ final class CoinViewControllerTests: XCTestCase {
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: CoinViewController, loader: LoaderSpy) {
         let client = LoaderSpy()
         let sut = CoinViewController(loader: client)
-        
+        trackForMemoryLeaks(client, file: file, line: line)
+        trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, client)
     }
     
