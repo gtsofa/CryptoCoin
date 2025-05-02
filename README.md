@@ -96,7 +96,7 @@ GET /coin
 
 Architecture diagram
 
-![architecture2](./architecture2.png)
+![architecture3](./architecture3.png)
 
 
 
