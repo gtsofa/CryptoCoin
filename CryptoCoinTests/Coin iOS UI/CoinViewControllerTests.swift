@@ -74,6 +74,31 @@ final class CoinViewControllerTests: XCTestCase {
         XCTAssertEqual(view0?.dayPerformanceText, String(cryptoCoin1.dayPerformance))
     }
     
+    func test_loadCompletion_doesNotAlterCurrentRenderingStateOnError() {
+         let (sut, loader) = makeSUT()
+        let cryptoCoin0 = makeCryptoCoin(symbol: "a symbol", name: "a name", iconURL: URL(string: "https://a-url.com")!, price: 987.65, dayPerformance: -3.47)
+        
+        sut.simulateAppearance()
+        XCTAssertEqual(sut.numberOfRenderedCoinViews(), 0)
+        
+        loader.completeCoinLoading(with: [cryptoCoin0], at: 0)
+        XCTAssertEqual(sut.numberOfRenderedCoinViews(), 1)
+        
+        let view = sut.cryptoCoinView(at: 0) as? CryptoCoinCell
+        
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view?.symbolText, cryptoCoin0.symbol)
+        XCTAssertEqual(view?.nameText, cryptoCoin0.name)
+        XCTAssertEqual(view?.priceText, String(cryptoCoin0.price))
+        XCTAssertEqual(view?.dayPerformanceText, String(cryptoCoin0.dayPerformance))
+        
+        sut.simulateUserInitiatedCoinReload()
+        loader.completeCoinLoadingWithError(at: 1)
+        XCTAssertEqual(sut.numberOfRenderedCoinViews(), 1)
+        
+        
+    }
+    
     // MARK: Helpers
     
     private func makeSUT(file: StaticString = #filePath, line: UInt = #line) -> (sut: CoinViewController, loader: LoaderSpy) {
@@ -101,6 +126,11 @@ final class CoinViewControllerTests: XCTestCase {
         
         func completeCoinLoading(with coinItem: [CoinItem] = [], at index: Int) {
             completions[index](.success(coinItem))
+        }
+        
+        func completeCoinLoadingWithError(at index: Int = 0) {
+            let error = NSError(domain: "any error", code: 0)
+            completions[index](.failure(error))
         }
     }
 

@@ -41,10 +41,15 @@ public final class CoinViewController: UITableViewController {
     @objc private func load() {
         refreshControl?.beginRefreshing()
         loader?.load { [weak self] result in
-            self?.tableModel = (try? result.get()) ?? []
-            self?.tableView.reloadData()
-            
-            self?.refreshControl?.endRefreshing()
+            switch result {
+            case let .success(coin):
+                self?.tableModel = coin
+                self?.tableView.reloadData()
+                self?.refreshControl?.endRefreshing()
+                
+            case .failure:
+                break
+            }
         }
     }
     
