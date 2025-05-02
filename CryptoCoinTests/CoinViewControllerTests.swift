@@ -110,7 +110,7 @@ final class CoinViewControllerTests: XCTestCase {
         
         sut.loadViewIfNeeded()
         
-        sut.refreshControl?.simulatePullToRefresh()
+        sut.simulateAppearance()
         
         loader.completeCoinLoading()
         XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
