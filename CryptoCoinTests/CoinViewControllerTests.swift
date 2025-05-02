@@ -79,11 +79,11 @@ final class CoinViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         sut.replaceRefreshControlWithFakeForiOS17Support()
         
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
         
         sut.beginAppearanceTransition(true, animated: false)
         sut.endAppearanceTransition()
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, true)
     }
     
     func test_viewDidLoad_hidesLoadingIndicatorOnLoaderCompletion() {
@@ -92,7 +92,7 @@ final class CoinViewControllerTests: XCTestCase {
         sut.loadViewIfNeeded()
         
         loader.completeCoinLoading()
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
     }
     
     func test_userInitiatedFeedReload_showsLoadingIndicator() {
@@ -102,7 +102,7 @@ final class CoinViewControllerTests: XCTestCase {
         
         sut.simulateAppearance()
         
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, true)
     }
     
     func test_userInitiatedFeedReload_hidesLoadingIndicatorOnLoaderCompletion() {
@@ -113,7 +113,7 @@ final class CoinViewControllerTests: XCTestCase {
         sut.simulateAppearance()
         
         loader.completeCoinLoading()
-        XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
+        XCTAssertEqual(sut.isShowingLoadingIndicator, false)
     }
     
     // MARK: Helpers
@@ -156,6 +156,9 @@ private extension UIRefreshControl {
 }
 
 private extension CoinViewController {
+    var isShowingLoadingIndicator: Bool {
+        return refreshControl?.isRefreshing == true
+    }
     func simulateUserInitiatedFeed() {
         refreshControl?.simulatePullToRefresh()
     }
