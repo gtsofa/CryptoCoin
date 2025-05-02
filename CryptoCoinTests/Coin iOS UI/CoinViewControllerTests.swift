@@ -42,11 +42,36 @@ final class CoinViewControllerTests: XCTestCase {
     
     func test_loadCompletion_rendersSuccessfullyLoadedCoins() {
         let (sut, loader) = makeSUT()
+        let cryptoCoin0 = makeCryptoCoin(symbol: "a symbol", name: "a name", iconURL: URL(string: "https://a-url.com")!, price: 987.65, dayPerformance: -3.47)
+        
+        let cryptoCoin1 = makeCryptoCoin(symbol: "another symbol", name: "another name", iconURL: URL(string: "https://another-url.com")!, price: 105.65, dayPerformance: -1.47)
+        
         
         sut.simulateAppearance()
-        loader.completeCoinLoading(at: 0)
+        XCTAssertEqual(sut.numberOfRenderedCoinViews(), 0)
         
-        XCTAssertEqual(sut.tableView.numberOfRows(inSection: 0), 0)
+        loader.completeCoinLoading(with: [cryptoCoin0], at: 0)
+        XCTAssertEqual(sut.numberOfRenderedCoinViews(), 1)
+        
+        let view = sut.cryptoCoinView(at: 0) as? CryptoCoinCell
+        
+        XCTAssertNotNil(view)
+        XCTAssertEqual(view?.symbolText, cryptoCoin0.symbol)
+        XCTAssertEqual(view?.nameText, cryptoCoin0.name)
+        XCTAssertEqual(view?.priceText, String(cryptoCoin0.price))
+        XCTAssertEqual(view?.dayPerformanceText, String(cryptoCoin0.dayPerformance))
+        
+        sut.simulateUserInitiatedCoinReload()
+        loader.completeCoinLoading(with: [cryptoCoin0, cryptoCoin1], at: 1)
+        XCTAssertEqual(sut.numberOfRenderedCoinViews(), 2)
+        
+        let view0 = sut.cryptoCoinView(at: 1) as? CryptoCoinCell
+        
+        XCTAssertNotNil(view0)
+        XCTAssertEqual(view0?.symbolText, cryptoCoin1.symbol)
+        XCTAssertEqual(view0?.nameText, cryptoCoin1.name)
+        XCTAssertEqual(view0?.priceText, String(cryptoCoin1.price))
+        XCTAssertEqual(view0?.dayPerformanceText, String(cryptoCoin1.dayPerformance))
     }
     
     // MARK: Helpers
@@ -57,6 +82,10 @@ final class CoinViewControllerTests: XCTestCase {
         trackForMemoryLeaks(client, file: file, line: line)
         trackForMemoryLeaks(sut, file: file, line: line)
         return (sut, client)
+    }
+    
+    private func makeCryptoCoin(symbol: String, name: String, iconURL: URL, price: Double, dayPerformance: Double) -> CoinItem {
+        return CoinItem(id: UUID(), symbol: symbol, name: name, iconURL: iconURL, price: price, dayPerformance: dayPerformance)
     }
     
     class LoaderSpy: CoinLoader {
@@ -70,11 +99,29 @@ final class CoinViewControllerTests: XCTestCase {
             completions.append(completion)
         }
         
-        func completeCoinLoading(at index: Int) {
-            completions[index](.success([]))
+        func completeCoinLoading(with coinItem: [CoinItem] = [], at index: Int) {
+            completions[index](.success(coinItem))
         }
     }
 
+}
+
+private extension CryptoCoinCell {
+    var symbolText: String {
+        return symbolLabel.text!
+    }
+    
+    var nameText: String {
+        return nameLabel.text!
+    }
+    
+    var priceText: String {
+        return priceLabel.text!
+    }
+    
+    var dayPerformanceText: String {
+        return dayPerformanceLabel.text!
+    }
 }
 
 private extension UIRefreshControl {
@@ -89,6 +136,20 @@ private extension UIRefreshControl {
 }
 
 private extension CoinViewController {
+    func cryptoCoinView(at index: Int) -> UITableViewCell? {
+        let ds = tableView.dataSource
+        let index = IndexPath(row: index, section: cryptoCoinSection)
+        return ds?.tableView(tableView, cellForRowAt: index)
+    }
+    
+    func numberOfRenderedCoinViews() -> Int {
+        tableView.numberOfRows(inSection: cryptoCoinSection)
+    }
+    
+    private var cryptoCoinSection: Int {
+        return 0
+    }
+    
     var isShowingLoadingIndicator: Bool {
         return refreshControl?.isRefreshing == true
     }

@@ -13,6 +13,8 @@ public final class CoinViewController: UITableViewController {
     public private(set) var isViewAppeared = false
     private var onViewIsAppearing: ((CoinViewController) -> Void)?
     
+    private var tableModel = [CoinItem]()
+    
     public convenience init(loader: CoinLoader) {
         self.init()
         self.loader = loader
@@ -38,8 +40,26 @@ public final class CoinViewController: UITableViewController {
     
     @objc private func load() {
         refreshControl?.beginRefreshing()
-        loader?.load { [weak self] _ in
+        loader?.load { [weak self] result in
+            self?.tableModel = (try? result.get()) ?? []
+            self?.tableView.reloadData()
+            
             self?.refreshControl?.endRefreshing()
         }
+    }
+    
+    public override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return tableModel.count
+    }
+    
+    public override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = CryptoCoinCell()
+        let cellModel = tableModel[indexPath.row]
+        cell.symbolLabel.text = cellModel.symbol
+        cell.nameLabel.text = cellModel.name
+        cell.priceLabel.text = "\(cellModel.price)"
+        cell.dayPerformanceLabel.text = "\(cellModel.dayPerformance)"
+        
+        return cell
     }
 }
