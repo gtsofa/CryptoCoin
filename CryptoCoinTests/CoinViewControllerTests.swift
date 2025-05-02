@@ -33,7 +33,7 @@ final class CoinViewController: UITableViewController {
         refreshControl?.beginRefreshing()
         
         if !viewAppeared {
-            viewAppeared = true 
+            viewAppeared = true
         }
     }
     
@@ -80,8 +80,8 @@ final class CoinViewControllerTests: XCTestCase {
         
         XCTAssertEqual(sut.refreshControl?.isRefreshing, false)
         
-        sut.beginAppearanceTransition(true, animated: false) // viewWillAppear
-        sut.endAppearanceTransition() // viewisAppearing + viewDidAppear
+        sut.beginAppearanceTransition(true, animated: false)
+        sut.endAppearanceTransition()
         XCTAssertEqual(sut.refreshControl?.isRefreshing, true)
     }
     
