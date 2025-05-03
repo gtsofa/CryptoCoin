@@ -19,6 +19,8 @@ class CoinViewController: UITableViewController {
     // Search controller
     let searchController = UISearchController(searchResultsController: nil)
     
+    var filteredCoins = [CryptoCoinViewModel]()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -70,6 +72,7 @@ class CoinViewController: UITableViewController {
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
             if self.coins.isEmpty {
                 self.coins = CryptoCoinViewModel.prototypeData
+                self.filteredCoins = self.coins
                 self.tableView.reloadData()
             }
             self.refreshControl?.endRefreshing()
@@ -78,7 +81,7 @@ class CoinViewController: UITableViewController {
     
     func configureSearchController() {
         // Configure search controller
-        //searchController.searchResultsUpdater = self
+        searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search by price or performance"
         navigationItem.searchController = searchController
@@ -86,20 +89,20 @@ class CoinViewController: UITableViewController {
         
         // Optional: Add scope buttons for filtering by price or performance
         searchController.searchBar.scopeButtonTitles = ["Price", "Performance"]
-        //searchController.searchBar.delegate = self
+        searchController.searchBar.delegate = self
         
         // Initialize filtered items
-        //filteredItems = items
+        filteredCoins = coins
         
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return coins.count //10
+        return searchController.isActive ? filteredCoins.count : coins.count //coins.count //10
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CryptoCoinCell", for: indexPath) as! CryptoCoinCell
-        let model = coins[indexPath.row]
+        let model = searchController.isActive ? filteredCoins[indexPath.row] : coins[indexPath.row] //coins[indexPath.row]
         cell.configure(with: model)
         
         return cell
@@ -113,5 +116,42 @@ extension CryptoCoinCell {
         priceLabel.text = String(format: "%.2f", model.price)
         dayPerformanceLabel.text = String(format: "%.2f", model.dayPerformance)
         
+    }
+}
+
+extension CoinViewController: UISearchResultsUpdating, UISearchBarDelegate {
+    func updateSearchResults(for searchController: UISearchController) {
+        guard let searchText = searchController.searchBar.text, !searchText.isEmpty else {
+            filteredCoins = coins
+            tableView.reloadData()
+            return
+        }
+        
+        let selectedScope = searchController.searchBar.selectedScopeButtonIndex
+        filterContent(for: searchText, scope: selectedScope)
+        tableView.reloadData()
+    }
+    
+    func filterContent(for searchText: String, scope: Int) {
+        filteredCoins = coins.filter { item in
+            if scope == 0 { // Price
+                let priceString = String(format: "%.2f", item.price)
+                return priceString.lowercased().contains(searchText.lowercased())
+            } else { // Performance
+                let performanceString = String(format: "%.2f", item.dayPerformance)
+                return performanceString.lowercased().contains(searchText.lowercased())
+            }
+        }
+    }
+    
+    // Handle scope button changes
+    func searchBar(_ searchBar: UISearchBar, selectedScopeButtonIndexDidChange selectedScope: Int) {
+        guard let searchText = searchBar.text, !searchText.isEmpty else {
+            filteredCoins = coins
+            tableView.reloadData()
+            return
+        }
+        filterContent(for: searchText, scope: selectedScope)
+        tableView.reloadData()
     }
 }
