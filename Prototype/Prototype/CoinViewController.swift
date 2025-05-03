@@ -7,7 +7,7 @@
 
 import UIKit
 
-struct CryptoCoinViewModel {
+struct CryptoCoinViewModel: Codable {
     public let name: String
     public let iconName: String
     public let price: Double
@@ -54,7 +54,7 @@ class CoinViewController: UITableViewController {
         // Trigger your data loading logic
         refresh()
     }
-
+    
     func setupRefreshControl() {
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
@@ -108,6 +108,29 @@ class CoinViewController: UITableViewController {
         
         return cell
     }
+    
+    // MARK: - Swipe actions
+    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let coin = coins[indexPath.row]
+        
+        let favoriteAction = UIContextualAction(style: .normal, title: nil) { [weak self] (action, view, completion) in
+            guard let self = self else { return }
+            // Toggle favorite status
+            self.coins[indexPath.row].isFavorite.toggle()
+            // Reload the cell to update the favorite icon
+            tableView.reloadRows(at: [indexPath], with: .automatic)
+            // Save favorites
+            self.saveFavorites()
+            completion(true)
+        }
+        
+        // Configure the swipe action appearance
+        favoriteAction.image = UIImage(systemName: coin.isFavorite ? "star.slash.fill" : "star.fill")
+        favoriteAction.backgroundColor = .systemYellow
+        favoriteAction.title = coin.isFavorite ? "Unfavorite" : "Favorite"
+        
+        return UISwipeActionsConfiguration(actions: [favoriteAction])
+    }
 }
 
 extension CryptoCoinCell {
@@ -155,5 +178,22 @@ extension CoinViewController: UISearchResultsUpdating, UISearchBarDelegate {
         }
         filterContent(for: searchText, scope: selectedScope)
         tableView.reloadData()
+    }
+    
+    // MARK: - Persistence
+    private func saveFavorites() {
+        let encoder = JSONEncoder()
+        if let encoded = try? encoder.encode(coins) {
+            UserDefaults.standard.set(encoded, forKey: "favorites")
+        }
+    }
+    
+    private func loadFavorites() {
+        if let data = UserDefaults.standard.data(forKey: "favorites") {
+            let decoder = JSONDecoder()
+            if let savedCoins = try? decoder.decode([CryptoCoinViewModel].self, from: data) {
+                coins = savedCoins
+            }
+        }
     }
 }
