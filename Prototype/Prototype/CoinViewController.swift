@@ -12,6 +12,7 @@ struct CryptoCoinViewModel {
     public let iconName: String
     public let price: Double
     public let dayPerformance: Double
+    public var isFavorite: Bool
 }
 
 class CoinViewController: UITableViewController {
@@ -115,6 +116,7 @@ extension CryptoCoinCell {
         iconImage.image = UIImage(named: model.iconName)
         priceLabel.text = String(format: "%.2f", model.price)
         dayPerformanceLabel.text = String(format: "%.2f", model.dayPerformance)
+        favoriteIcon.image = model.isFavorite ? UIImage(systemName: "star.fill") : UIImage(systemName: "star")
         
     }
 }
