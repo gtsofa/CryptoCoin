@@ -5,19 +5,37 @@
 Dear reviewers,
 
 Thank you for taking the time to review my project.
-In my implementation, I followed MVC for the user interface. At the moment, it runs on UIKit but in the future I would separate my project into more than one schemes so that the business logic is platform agnostic so I can run the tests in macOS target to achieve fast blazing tests as well as being able to deploy this project in a different platform, maybe we would need to run it in SwiftUI, tvOS, watchOS etc.
 
-Here is how you can run the project
-- Clone the repo: `https://github.com/gtsofa/CryptoCoin.git`
-- Navigate to the directory where the project is cloned
-- Open the project on your Xcode: 
-	- On terminal type: `open CryptoCoin.xcodeproj/ `
-	- Manually, navigate to the xcodeproj file and double tap to open it
-- To run the project
-	- Press the `run` button to run the project
-	- Or press `Command + R` on your macBook to run the project
-	- Or navigate to the Xcode menu, and select Product and choose Run on the dropdown menu
+For this implementation, I followed the MVC pattern for the UI and built the app using UIKit. In the future, I plan to separate the project into multiple schemes to keep the business logic platform-agnostic. This would allow me to run tests on a macOS target for faster feedback and make the app easier to port to other platforms like SwiftUI, tvOS, or watchOS.
 
+
+### How to Build and Run the App
+- Clone the repo: 
+	- `https://github.com/gtsofa/CryptoCoin.git`
+- Navigate to the project directory
+- Open the project in Xcode:
+	- Run: `open Prototype/Prototype.xcodeproj/` in Terminal, 
+	- Or manually double-click the `.xcodeproj` file.
+- Run the project:
+	- Press the Run button in Xcode,
+	- Or use `Command + R`,
+	- Or from the Xcode menu: `Product > Run`.
+
+### Assumptions and Decisions:
+- I assumed the 10-day duration referred to weekdays only. I should have confirmed this earlier, as I ended up rushing near the end.
+
+- I also assumed the CoinRanking API responses were straightforward. Unfortunately, I discovered later that the coin icons were in SVG format. In hindsight, it would have been better to prototype early to catch this before diving into architecture and networking.
+
+### Challenges & How I Handled Them:
+- The coin icons were returned as SVGs, so I integrated an SVG rendering library to handle and display them correctly.
+
+- My original goal was to build a clean, modular, and scalable architecture. However, due to time constraints, I opted to prioritize delivering the core features in a working prototype. In retrospect, I should have requested more time sooner.
+
+
+Please let me know if there's anything you’d like me to clarify or improve further. Thank you again for the opportunity!
+
+Best regards,
+Julius Nyule
 ---
 
 
