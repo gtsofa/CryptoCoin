@@ -14,6 +14,7 @@ public final class CoinViewController: UITableViewController {
     private var onViewIsAppearing: ((CoinViewController) -> Void)?
     
     private var tableModel = [CoinItem]()
+    let tableview = UITableView()
     
     public convenience init(loader: CoinLoader) {
         self.init()
@@ -30,12 +31,28 @@ public final class CoinViewController: UITableViewController {
             vc.onViewIsAppearing = nil
             vc.load()
         }
+        
+        configureUI()
     }
     
     public override func viewIsAppearing(_ animated: Bool) {
         super.viewIsAppearing(animated)
         
         onViewIsAppearing?(self)
+    }
+    
+    func configureUI() {
+        //tableView.register(CryptoCoinCell.self, forCellReuseIdentifier: CryptoCoinCell.resolveClassMethod)
+        configureTableview()
+    }
+    
+    func configureTableview() {
+        tableView.delegate = self
+        tableView.dataSource = self
+        
+        tableView.register(CryptoCoinCell.self, forCellReuseIdentifier: "CryptoCoinCell")
+        //tableView.rowHeight = 150
+        
     }
     
     @objc private func load() {
