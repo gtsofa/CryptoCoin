@@ -1,6 +1,25 @@
 # CryptoCoin App
 [![CI](https://github.com/gtsofa/CryptoCoin/actions/workflows/CI.yml/badge.svg)](https://github.com/gtsofa/CryptoCoin/actions/workflows/CI.yml)
 
+---
+Dear reviewers,
+
+Thank you for taking the time to review my project.
+In my implementation, I followed MVC for the user interface. At the moment, it runs on UIKit but in the future I would separate my project into more than one schemes so that the business logic is platform agnostic so I can run the tests in macOS target to achieve fast blazing tests as well as being able to deploy this project in a different platform, maybe we would need to run it in SwiftUI, tvOS, watchOS etc.
+
+Here is how you can run the project
+- Clone the repo: `https://github.com/gtsofa/CryptoCoin.git`
+- Navigate to the directory where the project is cloned
+- Open the project on your Xcode: 
+	- On terminal type: `open CryptoCoin.xcodeproj/ `
+	- Manually, navigate to the xcodeproj file and double tap to open it
+- To run the project
+	- Press the `run` button to run the project
+	- Or press `Command + R` on your macBook to run the project
+	- Or navigate to the Xcode menu, and select Product and choose Run on the dropdown menu
+
+---
+
 
 ## Project Description:
 Create an iOS application that fetches data from the CointRanking API and displays a list of the top 100
