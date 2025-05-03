@@ -15,18 +15,65 @@ struct CryptoCoinViewModel {
 }
 
 class CoinViewController: UITableViewController {
-    private let coin = CryptoCoinViewModel.prototypeData
+    private var coins = [CryptoCoinViewModel]()
     // Search controller
     let searchController = UISearchController(searchResultsController: nil)
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        title = "Coins"
+        setupRefreshControl()
+        
         tableView.register(CryptoCoinCell.self, forCellReuseIdentifier: "CryptoCoinCell")
         tableView.rowHeight = UITableView.automaticDimension
         //tableView.estimatedRowHeight = 60
         tableView.separatorStyle = .none
         
         configureSearchController()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        
+        if coins.isEmpty {
+            showRefreshManually()
+        }
+    }
+    
+    private func showRefreshManually() {
+        guard let refreshControl = self.refreshControl else { return }
+        
+        // Manually show the spinner
+        tableView.setContentOffset(CGPoint(x: 0, y: -refreshControl.frame.size.height), animated: true)
+        refreshControl.beginRefreshing()
+        
+        // Trigger your data loading logic
+        refresh()
+    }
+
+    func setupRefreshControl() {
+        let refreshControl = UIRefreshControl()
+        refreshControl.addTarget(self, action: #selector(refresh), for: .valueChanged)
+        self.refreshControl = refreshControl
+    }
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        refresh()
+        tableView.setContentOffset(CGPoint(x: 0, y: -tableView.contentInset.top), animated: false)
+    }
+    
+    @objc func refresh() {
+        refreshControl?.beginRefreshing()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
+            if self.coins.isEmpty {
+                self.coins = CryptoCoinViewModel.prototypeData
+                self.tableView.reloadData()
+            }
+            self.refreshControl?.endRefreshing()
+        }
     }
     
     func configureSearchController() {
@@ -47,12 +94,12 @@ class CoinViewController: UITableViewController {
     }
     
     override func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return coin.count //10
+        return coins.count //10
     }
     
     override func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "CryptoCoinCell", for: indexPath) as! CryptoCoinCell
-        let model = coin[indexPath.row]
+        let model = coins[indexPath.row]
         cell.configure(with: model)
         
         return cell
