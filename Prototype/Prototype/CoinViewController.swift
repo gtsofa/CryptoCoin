@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import SVGKit
 
 class CoinViewController: UITableViewController {
     private var coins = [CryptoCoinViewModel]()
@@ -161,8 +162,65 @@ extension CryptoCoinCell {
         dayPerformanceLabel.text = String(format: "%.2f", model.dayPerformance)
         favoriteIcon.image = model.isFavorite ? UIImage(systemName: "star.fill") : UIImage(systemName: "star")
         
+        // Reset image to avoid stale data
+        iconImage.image = nil
+        
+        // Load SVG icon from URL
+        guard let url = URL(string: model.iconName), url.absoluteString.lowercased().hasSuffix(".svg") else {
+            print("Invalid or non-SVG URL: \(model.iconName)")
+            iconImage.image = UIImage(named: "default_placeholder")
+            return
+        }
+        
+        URLSession.shared.dataTask(with: url) { data, response, error in
+            // Check for network errors or no data
+            guard let data = data, error == nil else {
+                print("Failed to load SVG data: \(error?.localizedDescription ?? "No data")")
+                DispatchQueue.main.async {
+                    self.iconImage.image = UIImage(named: "default_placeholder")
+                }
+                return
+            }
+            
+            // Validate SVG parsing
+            guard let svgImage = SVGKImage(data: data) else {
+                print("Failed to parse SVG data")
+                DispatchQueue.main.async {
+                    self.iconImage.image = UIImage(named: "default_placeholder")
+                }
+                return
+            }
+            
+            // Explicitly check SVG size
+            let svgSize = svgImage.size
+            guard svgSize.width > 0, svgSize.height > 0 else {
+                print("Invalid SVG size: \(svgSize)")
+                DispatchQueue.main.async {
+                    self.iconImage.image = UIImage(named: "default_placeholder")
+                }
+                return
+            }
+            
+            // Render SVG to UIImage with explicit size
+            let renderSize = CGSize(width: 40, height: 40) // Adjust to your desired size
+            svgImage.size = renderSize // Force a valid size
+            guard let uiImage = svgImage.uiImage else {
+                print("Failed to convert SVG to UIImage")
+                DispatchQueue.main.async {
+                    self.iconImage.image = UIImage(named: "default_placeholder")
+                }
+                return
+            }
+            
+            // Update UI on main thread
+            DispatchQueue.main.async {
+                self.iconImage.image = uiImage
+            }
+        }.resume()
     }
+    
 }
+
 
 extension CoinViewController: UISearchResultsUpdating, UISearchBarDelegate {
     func updateSearchResults(for searchController: UISearchController) {

@@ -7,21 +7,6 @@
 
 import Foundation
 
-/*struct CryptoCoinViewModel: Codable {
-    public let name: String
-    public let iconName: String
-    public let price: Double
-    public let dayPerformance: Double
-    public var isFavorite: Bool
-    
-//    enum CodingKeys: String, CodingKey {
-//        case name
-//        case iconName = "iconUrl"
-//        case price
-//        case dayPerformance = "change"
-//    }
-}*/
-
 struct CryptoCoinViewModel: Codable {
     let name: String
     let iconName: String

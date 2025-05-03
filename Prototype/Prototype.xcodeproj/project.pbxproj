@@ -6,6 +6,11 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		C6B65E5B2DC6AF4A00F5E622 /* SVGKit in Frameworks */ = {isa = PBXBuildFile; productRef = C6B65E5A2DC6AF4A00F5E622 /* SVGKit */; };
+		C6B65E5D2DC6AF4A00F5E622 /* SVGKitSwift in Frameworks */ = {isa = PBXBuildFile; productRef = C6B65E5C2DC6AF4A00F5E622 /* SVGKitSwift */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXFileReference section */
 		C6B65DEC2DC5159B00F5E622 /* Prototype.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Prototype.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
@@ -36,6 +41,8 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				C6B65E5D2DC6AF4A00F5E622 /* SVGKitSwift in Frameworks */,
+				C6B65E5B2DC6AF4A00F5E622 /* SVGKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -78,6 +85,8 @@
 			);
 			name = Prototype;
 			packageProductDependencies = (
+				C6B65E5A2DC6AF4A00F5E622 /* SVGKit */,
+				C6B65E5C2DC6AF4A00F5E622 /* SVGKitSwift */,
 			);
 			productName = Prototype;
 			productReference = C6B65DEC2DC5159B00F5E622 /* Prototype.app */;
@@ -107,6 +116,9 @@
 			);
 			mainGroup = C6B65DE32DC5159B00F5E622;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				C6B65E592DC6AF4A00F5E622 /* XCRemoteSwiftPackageReference "SVGKit" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = C6B65DED2DC5159B00F5E622 /* Products */;
 			projectDirPath = "";
@@ -333,6 +345,30 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		C6B65E592DC6AF4A00F5E622 /* XCRemoteSwiftPackageReference "SVGKit" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/SVGKit/SVGKit.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		C6B65E5A2DC6AF4A00F5E622 /* SVGKit */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6B65E592DC6AF4A00F5E622 /* XCRemoteSwiftPackageReference "SVGKit" */;
+			productName = SVGKit;
+		};
+		C6B65E5C2DC6AF4A00F5E622 /* SVGKitSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = C6B65E592DC6AF4A00F5E622 /* XCRemoteSwiftPackageReference "SVGKit" */;
+			productName = SVGKitSwift;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = C6B65DE42DC5159B00F5E622 /* Project object */;
 }
