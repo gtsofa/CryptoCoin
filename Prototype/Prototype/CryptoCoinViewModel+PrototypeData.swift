@@ -7,7 +7,7 @@
 
 import Foundation
 
-extension CryptoCoinViewModel {
+/*xtension CryptoCoinViewModel {
     static var prototypeData: [CryptoCoinViewModel] {
         return [
             CryptoCoinViewModel(
@@ -73,4 +73,4 @@ extension CryptoCoinViewModel {
             
         ]
     }
-}
+}*/

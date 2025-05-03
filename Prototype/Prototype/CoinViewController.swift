@@ -7,14 +7,6 @@
 
 import UIKit
 
-struct CryptoCoinViewModel: Codable {
-    public let name: String
-    public let iconName: String
-    public let price: Double
-    public let dayPerformance: Double
-    public var isFavorite: Bool
-}
-
 class CoinViewController: UITableViewController {
     private var coins = [CryptoCoinViewModel]()
     // Search controller
@@ -34,6 +26,8 @@ class CoinViewController: UITableViewController {
         tableView.separatorStyle = .none
         
         configureSearchController()
+        
+        fetchData()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -44,14 +38,29 @@ class CoinViewController: UITableViewController {
         }
     }
     
+    private func fetchData() {
+        CoinService.shared.fetchCoins { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let coins):
+                    self.coins = coins
+                    self.loadFavorites()
+                    self.filteredCoins = self.coins
+                    self.tableView.reloadData()
+                case .failure(let error):
+                    print("Error fetching coins: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
     private func showRefreshManually() {
         guard let refreshControl = self.refreshControl else { return }
         
-        // Manually show the spinner
         tableView.setContentOffset(CGPoint(x: 0, y: -refreshControl.frame.size.height), animated: true)
         refreshControl.beginRefreshing()
         
-        // Trigger your data loading logic
         refresh()
     }
     
@@ -70,25 +79,31 @@ class CoinViewController: UITableViewController {
     
     @objc func refresh() {
         refreshControl?.beginRefreshing()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) {
-            if self.coins.isEmpty {
-                self.coins = CryptoCoinViewModel.prototypeData
-                self.filteredCoins = self.coins
-                self.tableView.reloadData()
+        
+        CoinService.shared.fetchCoins { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let coins):
+                    self.coins = coins
+                    self.filteredCoins = coins
+                    self.tableView.reloadData()
+                case .failure(let error):
+                    print("Error refreshing coins: \(error.localizedDescription)")
+                }
+                self.refreshControl?.endRefreshing()
             }
-            self.refreshControl?.endRefreshing()
         }
     }
+
     
     func configureSearchController() {
-        // Configure search controller
         searchController.searchResultsUpdater = self
         searchController.obscuresBackgroundDuringPresentation = false
         searchController.searchBar.placeholder = "Search by price or performance"
         navigationItem.searchController = searchController
         definesPresentationContext = true
         
-        // Optional: Add scope buttons for filtering by price or performance
         searchController.searchBar.scopeButtonTitles = ["Price", "Performance"]
         searchController.searchBar.delegate = self
         
@@ -119,12 +134,10 @@ class CoinViewController: UITableViewController {
             self.coins[indexPath.row].isFavorite.toggle()
             // Reload the cell to update the favorite icon
             tableView.reloadRows(at: [indexPath], with: .automatic)
-            // Save favorites
             self.saveFavorites()
             completion(true)
         }
         
-        // Configure the swipe action appearance
         favoriteAction.image = UIImage(systemName: coin.isFavorite ? "star.slash.fill" : "star.fill")
         favoriteAction.backgroundColor = .systemYellow
         favoriteAction.title = coin.isFavorite ? "Unfavorite" : "Favorite"
@@ -132,7 +145,6 @@ class CoinViewController: UITableViewController {
         return UISwipeActionsConfiguration(actions: [favoriteAction])
     }
     
-    // selection
     override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         let selectedCoin = searchController.isActive ? filteredCoins[indexPath.row] : coins[indexPath.row]
         let detailVC = CoinDetailViewController()
@@ -188,20 +200,19 @@ extension CoinViewController: UISearchResultsUpdating, UISearchBarDelegate {
         tableView.reloadData()
     }
     
-    // MARK: - Persistence
-    private func saveFavorites() {
-        let encoder = JSONEncoder()
-        if let encoded = try? encoder.encode(coins) {
-            UserDefaults.standard.set(encoded, forKey: "favorites")
-        }
-    }
+    // MARK: - Persistenc
     
+    private func saveFavorites() {
+        let favoriteNames = coins.filter { $0.isFavorite }.map { $0.name }
+        UserDefaults.standard.set(favoriteNames, forKey: "favoriteCoinNames")
+    }
+
     private func loadFavorites() {
-        if let data = UserDefaults.standard.data(forKey: "favorites") {
-            let decoder = JSONDecoder()
-            if let savedCoins = try? decoder.decode([CryptoCoinViewModel].self, from: data) {
-                coins = savedCoins
+        if let favoriteNames = UserDefaults.standard.array(forKey: "favoriteCoinNames") as? [String] {
+            for i in 0..<coins.count {
+                coins[i].isFavorite = favoriteNames.contains(coins[i].name)
             }
         }
     }
+
 }

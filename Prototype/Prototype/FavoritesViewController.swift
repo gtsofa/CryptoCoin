@@ -25,15 +25,95 @@ class FavoritesViewController: UITableViewController {
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        loadFavorites()
+        //loadFavorites()
+        fetchFavorites()
         tableView.reloadData()
     }
     
-    private func loadFavorites() {
+    private func fetchFavorites() {
+        CoinService.shared.fetchCoins { [weak self] result in
+            DispatchQueue.main.async {
+                guard let self = self else { return }
+                switch result {
+                case .success(let allCoins):
+                    self.favoriteCoins = self.loadFavoriteCoins(from: allCoins)
+                    self.tableView.reloadData()
+                case .failure(let error):
+                    print("Failed to fetch coins: \(error.localizedDescription)")
+                }
+            }
+        }
+    }
+    
+//    private func fetchFavorites() {
+//        CoinService.shared.fetchCoins { [weak self] result in
+//            DispatchQueue.main.async {
+//                guard let self = self else { return }
+//                
+//                switch result {
+//                case .success(let allCoins):
+//                    self.favoriteCoins = self.loadFavoriteCoins(from: allCoins)
+//                    self.tableView.reloadData()
+//                case .failure(let error):
+//                    print("Failed to fetch coins: \(error.localizedDescription)")
+//                    // Optionally show an alert or fallback
+//                }
+//            }
+//        }
+//    }
+    
+    /*private func loadFavorites() {
         if let data = UserDefaults.standard.data(forKey: "favorites") {
             let decoder = JSONDecoder()
             if let savedCoins = try? decoder.decode([CryptoCoinViewModel].self, from: data) {
                 favoriteCoins = savedCoins.filter { $0.isFavorite }
+            }
+        }
+    }*/
+    
+//    private func loadFavoriteCoins(from coins: [CryptoCoinViewModel]) -> [CryptoCoinViewModel] {
+//        guard let data = UserDefaults.standard.data(forKey: "favorites"),
+//              let storedFavorites = try? JSONDecoder().decode([CryptoCoinViewModel].self, from: data)
+//        else {
+//            return []
+//        }
+//        
+//        let favoriteNames = storedFavorites.filter { $0.isFavorite }.map { $0.name }
+//        return coins.filter { favoriteNames.contains($0.name) }
+//    }
+    
+    private func loadFavoriteCoins(from coins: [CryptoCoinViewModel]) -> [CryptoCoinViewModel] {
+        guard let favoriteNames = UserDefaults.standard.array(forKey: "favoriteCoinNames") as? [String] else {
+            return []
+        }
+        return coins.filter { favoriteNames.contains($0.name) }.map {
+            var coin = $0
+            coin.isFavorite = true
+            return coin
+        }
+    }
+    
+    private func saveFavorites() {
+        let favoriteNames = favoriteCoins.map { $0.name }
+        UserDefaults.standard.set(favoriteNames, forKey: "favoriteCoinNames")
+    }
+    
+    private func updateFavoritesInStorage() {
+        CoinService.shared.fetchCoins { result in
+            switch result {
+            case .success(let allCoins):
+                var updatedCoins = allCoins
+                for i in 0..<updatedCoins.count {
+                    if self.favoriteCoins.contains(where: { $0.name == updatedCoins[i].name }) {
+                        updatedCoins[i].isFavorite = true
+                    }
+                }
+                
+                if let data = try? JSONEncoder().encode(updatedCoins) {
+                    UserDefaults.standard.set(data, forKey: "favorites")
+                }
+            case .failure(let error):
+                print("Error updating favorites: \(error.localizedDescription)")
             }
         }
     }
@@ -55,17 +135,32 @@ class FavoritesViewController: UITableViewController {
         navigationController?.pushViewController(detailVC, animated: true)
     }
     
+//    override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+//        _  = favoriteCoins[indexPath.row]
+//
+//        let unfavoriteAction = UIContextualAction(style: .destructive, title: "Unfavorite") { [weak self] (action, view, completion) in
+//            guard let self = self else { return }
+//
+//            self.favoriteCoins[indexPath.row].isFavorite = false
+//            self.favoriteCoins.remove(at: indexPath.row)
+//            self.updateFavoritesInStorage()
+//            tableView.deleteRows(at: [indexPath], with: .automatic)
+//
+//            completion(true)
+//        }
+//
+//        unfavoriteAction.image = UIImage(systemName: "star.slash.fill")
+//        unfavoriteAction.backgroundColor = .systemRed
+//
+//        return UISwipeActionsConfiguration(actions: [unfavoriteAction])
+//    }
+    
     override func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
-        _  = favoriteCoins[indexPath.row]
-        
         let unfavoriteAction = UIContextualAction(style: .destructive, title: "Unfavorite") { [weak self] (action, view, completion) in
             guard let self = self else { return }
-        
-            self.favoriteCoins[indexPath.row].isFavorite = false
-            self.updateFavoritesInStorage()
             self.favoriteCoins.remove(at: indexPath.row)
+            self.saveFavorites()
             tableView.deleteRows(at: [indexPath], with: .automatic)
-            
             completion(true)
         }
         
@@ -75,7 +170,7 @@ class FavoritesViewController: UITableViewController {
         return UISwipeActionsConfiguration(actions: [unfavoriteAction])
     }
     
-    private func updateFavoritesInStorage() {
+    /*private func updateFavoritesInStorage() {
         if let data = UserDefaults.standard.data(forKey: "favorites"),
            var allCoins = try? JSONDecoder().decode([CryptoCoinViewModel].self, from: data) {
             for i in 0..<allCoins.count {
@@ -90,6 +185,6 @@ class FavoritesViewController: UITableViewController {
                 UserDefaults.standard.set(updatedData, forKey: "favorites")
             }
         }
-    }
+    }*/
 }
 
