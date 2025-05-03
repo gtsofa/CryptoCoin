@@ -131,6 +131,14 @@ class CoinViewController: UITableViewController {
         
         return UISwipeActionsConfiguration(actions: [favoriteAction])
     }
+    
+    // selection
+    override func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        let selectedCoin = searchController.isActive ? filteredCoins[indexPath.row] : coins[indexPath.row]
+        let detailVC = CoinDetailViewController()
+        detailVC.coin = selectedCoin
+        navigationController?.pushViewController(detailVC, animated: true)
+    }
 }
 
 extension CryptoCoinCell {
