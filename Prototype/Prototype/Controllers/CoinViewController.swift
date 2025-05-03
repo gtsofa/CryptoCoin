@@ -165,9 +165,9 @@ extension CryptoCoinCell {
         // Reset image to avoid stale data
         iconImage.image = nil
         
-        // Load SVG icon from URL
-        guard let url = URL(string: model.iconName), url.absoluteString.lowercased().hasSuffix(".svg") else {
-            print("Invalid or non-SVG URL: \(model.iconName)")
+        // Load icon from URL
+        guard let url = URL(string: model.iconName) else {
+            print("Invalid URL: \(model.iconName)")
             iconImage.image = UIImage(named: "default_placeholder")
             return
         }
@@ -175,37 +175,49 @@ extension CryptoCoinCell {
         URLSession.shared.dataTask(with: url) { data, response, error in
             // Check for network errors or no data
             guard let data = data, error == nil else {
-                print("Failed to load SVG data: \(error?.localizedDescription ?? "No data")")
+                print("Failed to load image data: \(error?.localizedDescription ?? "No data")")
                 DispatchQueue.main.async {
                     self.iconImage.image = UIImage(named: "default_placeholder")
                 }
                 return
             }
             
-            // Validate SVG parsing
-            guard let svgImage = SVGKImage(data: data) else {
-                print("Failed to parse SVG data")
-                DispatchQueue.main.async {
-                    self.iconImage.image = UIImage(named: "default_placeholder")
+            // Determine image type (SVG or other)
+            let isSVG = url.absoluteString.lowercased().hasSuffix(".svg")
+            var uiImage: UIImage?
+            
+            if isSVG {
+                // Handle SVG
+                guard let svgImage = SVGKImage(data: data) else {
+                    print("Failed to parse SVG data")
+                    DispatchQueue.main.async {
+                        self.iconImage.image = UIImage(named: "default_placeholder")
+                    }
+                    return
                 }
-                return
+                
+                // Validate SVG size
+                let svgSize = svgImage.size
+                guard svgSize.width > 0, svgSize.height > 0 else {
+                    print("Invalid SVG size: \(svgSize)")
+                    DispatchQueue.main.async {
+                        self.iconImage.image = UIImage(named: "default_placeholder")
+                    }
+                    return
+                }
+                
+                // Render SVG to UIImage with explicit size
+                let renderSize = CGSize(width: 40, height: 40) // Adjust to your desired size
+                svgImage.size = renderSize
+                uiImage = svgImage.uiImage
+            } else {
+                // Handle non-SVG (e.g., PNG, JPG)
+                uiImage = UIImage(data: data)
             }
             
-            // Explicitly check SVG size
-            let svgSize = svgImage.size
-            guard svgSize.width > 0, svgSize.height > 0 else {
-                print("Invalid SVG size: \(svgSize)")
-                DispatchQueue.main.async {
-                    self.iconImage.image = UIImage(named: "default_placeholder")
-                }
-                return
-            }
-            
-            // Render SVG to UIImage with explicit size
-            let renderSize = CGSize(width: 40, height: 40) // Adjust to your desired size
-            svgImage.size = renderSize // Force a valid size
-            guard let uiImage = svgImage.uiImage else {
-                print("Failed to convert SVG to UIImage")
+            // Validate final UIImage
+            guard let finalImage = uiImage else {
+                print("Failed to convert to UIImage")
                 DispatchQueue.main.async {
                     self.iconImage.image = UIImage(named: "default_placeholder")
                 }
@@ -214,11 +226,10 @@ extension CryptoCoinCell {
             
             // Update UI on main thread
             DispatchQueue.main.async {
-                self.iconImage.image = uiImage
+                self.iconImage.image = finalImage
             }
         }.resume()
     }
-    
 }
 
 
