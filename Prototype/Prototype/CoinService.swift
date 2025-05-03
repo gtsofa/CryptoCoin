@@ -23,7 +23,7 @@ class CoinService {
         request.setValue("application/json", forHTTPHeaderField: "Accept")
         
         // Optional: If the API requires a key
-        // request.setValue("your-api-key", forHTTPHeaderField: "x-access-token")
+        request.setValue("coinranking7fd5a2e99516b2dc4c264e8f242cf989548ccdb44600751e", forHTTPHeaderField: "x-access-token")
 
         URLSession.shared.dataTask(with: request) { data, response, error in
             if let error = error {
