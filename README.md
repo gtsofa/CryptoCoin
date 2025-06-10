@@ -136,4 +136,8 @@ Architecture diagram
 ![architecture4](./architecture4.png)
 
 
+Complete Architecture diagram
+
+![complete-architecture](./complete-architecture.png)
+
 
