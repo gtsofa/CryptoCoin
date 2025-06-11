@@ -136,8 +136,8 @@ Architecture diagram
 ![architecture4](./architecture4.png)
 
 
-Complete Architecture diagram
+Current Architecture diagram
 
-![complete-architecture](./complete-architecture.png)
+![current-architecture](./current-architecture.png)
 
 
