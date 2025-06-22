@@ -20,7 +20,7 @@ public final class CryptoCoinCell: UITableViewCell {
         return view
     }()
     
-    var nameLabel: UILabel = {
+    public var nameLabel: UILabel = {
         let label = UILabel()
         label.textColor = #colorLiteral(red: 0.2588235438, green: 0.7568627596, blue: 0.9686274529, alpha: 1)
         label.font = .systemFont(ofSize: 14)
@@ -28,7 +28,7 @@ public final class CryptoCoinCell: UITableViewCell {
         return label
     }()
     
-    var priceLabel: UILabel = {
+    public var priceLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 12)
         label.numberOfLines = 0
@@ -36,7 +36,7 @@ public final class CryptoCoinCell: UITableViewCell {
         return label
     }()
     
-    var dayPerformanceLabel: UILabel = {
+    public var dayPerformanceLabel: UILabel = {
         let label = UILabel()
         label.font = UIFont.systemFont(ofSize: 14)
         label.translatesAutoresizingMaskIntoConstraints = false
